@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/YOUR-ORG/YOUR-REPO.git', branch: 'main'
+                git url: 'https://github.com/vivek6491/Amazon.git', branch: 'master'
             }
         }
 
