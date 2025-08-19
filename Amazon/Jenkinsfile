@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'SonarQubeServer'         // Jenkins Sonar config name
-        MAVEN_HOME = tool 'Maven 3.8.5'        // Jenkins Maven tool
+        SONARQUBE = 'SonarQubeServer'
+        MAVEN_HOME = tool 'Maven 3.8.5'
     }
 
     stages {
@@ -15,7 +15,6 @@ pipeline {
 
         stage('Build WAR') {
             steps {
-                // Build all modules, skip tests if desired
                 sh "${MAVEN_HOME}/bin/mvn clean install -DskipTests"
             }
         }
@@ -38,21 +37,25 @@ pipeline {
 
         stage('Deploy to Tomcat via Ansible') {
             steps {
-                // Copy WAR to Ansible folder and run playbook
-                sh '''
-                    cp Amazon-Web/target/Amazon.war ansible/
-                    ansible-playbook -i ansible/hosts.ini ansible/deploy-tomcat.yml
-                '''
+                withCredentials([string(credentialsId: 'ansible-vault-password', variable: 'VAULT_PASS')]) {
+                    sh '''
+                        echo "$VAULT_PASS" > vault.txt
+                        chmod 600 vault.txt
+                        cp Amazon-Web/target/Amazon.war ansible/
+                        ansible-playbook -i ansible/hosts.ini ansible/deploy-tomcat.yml --vault-password-file vault.txt
+                        rm -f vault.txt
+                    '''
+                }
             }
         }
     }
 
     post {
         success {
-            echo "Deployment successful."
+            echo '✅ Deployment successful.'
         }
         failure {
-            echo "Pipeline failed. Check logs."
+            echo '❌ Pipeline failed. Check logs.'
         }
     }
 }
