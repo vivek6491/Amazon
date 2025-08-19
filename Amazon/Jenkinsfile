@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         SONARQUBE = 'SonarQubeServer'
-        MAVEN_HOME = tool 'Maven 3.6.3'
+        MAVEN_HOME = tool 'Maven 3.9.11'
     }
 
     stages {
