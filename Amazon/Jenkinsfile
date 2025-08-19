@@ -9,15 +9,12 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Clones the repository into a directory named 'Amazon'
                 git url: 'https://github.com/vivek6491/Amazon.git', branch: 'master'
             }
         }
 
         stage('Build WAR') {
             steps {
-                // Change directory to the root of the cloned repository (Amazon/)
-                // This ensures Maven builds all modules, including Amazon-Core if it's a sibling module
                 dir('Amazon') {
                     sh "${MAVEN_HOME}/bin/mvn clean install -DskipTests"
                 }
@@ -26,10 +23,9 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                // Perform SonarQube analysis from the root of the multi-module project
                 dir('Amazon') {
                     withSonarQubeEnv("${SONARQUBE}") {
-                        sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.verbose=true"
+                        sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.verbose=true -Dsonar.qualitygate.wait=false"
                     }
                 }
             }
@@ -37,7 +33,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 2, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -47,19 +43,10 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'ansible-vault-password', variable: 'VAULT_PASS')]) {
                     sh '''
-                        # Create a temporary file for the Ansible Vault password
                         echo "$VAULT_PASS" > vault.txt
                         chmod 600 vault.txt
-
-                        # Copy the WAR file from its generated location (within the Amazon-Web module's target directory)
-                        # Note: The 'cp' command is executed from the Jenkins workspace root,
-                        # so the path to the WAR needs to be relative to that (Amazon/Amazon-Web/target/)
                         cp Amazon/Amazon-Web/target/Amazon.war ansible/
-
-                        # Run the Ansible playbook, providing the vault password file
                         ansible-playbook -i ansible/hosts.ini ansible/deploy-tomcat.yml --vault-password-file vault.txt
-
-                        # Clean up the temporary vault password file
                         rm -f vault.txt
                     '''
                 }
