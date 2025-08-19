@@ -44,7 +44,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'ansible-vault-password', variable: 'VAULT_PASS')]) {
                     sh '''
                         echo "$VAULT_PASS" > /home/vivek1/Desktop/ansible/tomcat/vault.txt
-                        chmod 600 vault.txt
+                        chmod 600 /home/vivek1/Desktop/ansible/tomcat/vault.txt
                         cp /home/vivek1/.jenkins/workspace/Amazon_CICD_Pipeline/Amazon/Amazon-Web/target/Amazon.war /home/vivek1/Desktop/ansible/tomcat/tomcat10_Deploy/webapps
                         ansible-playbook -i /home/vivek1/Desktop/ansible/hosts.ini /home/vivek1/Desktop/ansible/deploy-tomcat.yml --vault-password-file /home/vivek1/Desktop/ansible/tomcat/vault.txt
                         rm -f vault.txt
