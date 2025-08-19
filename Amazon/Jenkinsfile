@@ -15,7 +15,7 @@ pipeline {
 
         stage('Build WAR') {
     steps {
-        dir('Amazon-Web') {  // Change directory to where the pom.xml exists
+        dir('Amazon/Amazon-Web') {  // Change directory to where the pom.xml exists
             sh "${MAVEN_HOME}/bin/mvn clean install -DskipTests"
         }
     }
