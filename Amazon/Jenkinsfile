@@ -29,7 +29,7 @@ pipeline {
                 // Perform SonarQube analysis from the root of the multi-module project
                 dir('Amazon') {
                     withSonarQubeEnv("${SONARQUBE}") {
-                        sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.verbose=true "
+                        sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.verbose=true"
                     }
                 }
             }
