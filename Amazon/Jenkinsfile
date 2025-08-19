@@ -47,7 +47,7 @@ pipeline {
                         chmod 600 /home/vivek1/Desktop/ansible/tomcat/vault.txt
                         cp /home/vivek1/.jenkins/workspace/Amazon_CICD_Pipeline/Amazon/Amazon-Web/target/Amazon.war /home/vivek1/Desktop/ansible/tomcat/tomcat10_Deploy/webapps
                         ansible-playbook -i /home/vivek1/Desktop/ansible/hosts.ini /home/vivek1/Desktop/ansible/deploy-tomcat.yml --vault-password-file /home/vivek1/Desktop/ansible/tomcat/vault.txt
-                        rm -f vault.txt
+                        rm -f /home/vivek1/Desktop/ansible/tomcat/vault.txt
                     '''
                 }
             }
