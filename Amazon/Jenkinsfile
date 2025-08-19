@@ -42,13 +42,27 @@ pipeline {
         stage('Deploy to Tomcat via Ansible') {
             steps {
                 withCredentials([string(credentialsId: 'ansible-vault-password', variable: 'VAULT_PASS')]) {
-                    sh '''
+                    script {
+                        // Debugging step to check the workspace structure and the .war file
+                        sh '''
+                            echo "Checking if the ansible directory exists"
+                            test -d ansible || echo "ansible directory does not exist, creating it..."
+                            ls -l
+                            test -f Amazon/Amazon-Web/target/Amazon.war || echo "Amazon.war not found"
+                        '''
+
+                        // Ensure the ansible directory exists
+                        sh 'test -d ansible || mkdir -p ansible'
+
+                        // Copy the WAR file to the ansible directory
+                        sh 'cp Amazon/Amazon-Web/target/Amazon.war ansible/'
+
+                        // Running the Ansible playbook
                         echo "$VAULT_PASS" > vault.txt
                         chmod 600 vault.txt
-                        cp Amazon/Amazon-Web/target/Amazon.war ansible/
-                        ansible-playbook -i ansible/hosts.ini ansible/deploy-tomcat.yml --vault-password-file vault.txt
+                        sh 'ansible-playbook -i ansible/hosts.ini ansible/deploy-tomcat.yml --vault-password-file vault.txt'
                         rm -f vault.txt
-                    '''
+                    }
                 }
             }
         }
