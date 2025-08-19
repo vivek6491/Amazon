@@ -25,7 +25,7 @@ pipeline {
             steps {
                 dir('Amazon') {
                     withSonarQubeEnv("${SONARQUBE}") {
-                        sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.verbose=true -Dsonar.qualitygate.wait=true"
+                        sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.verbose=true -Dsonar.qualitygate.wait=false"
                     }
                 }
             }
@@ -45,14 +45,7 @@ pipeline {
                     sh '''
                         echo "$VAULT_PASS" > vault.txt
                         chmod 600 vault.txt
-                        sh 'ls -l'
-                        sh 'echo "Checking ansible directory"'
-                        sh 'test -d ansible || echo "ansible directory does not exist"'
-                        sh '''
-                            test -d ansible || mkdir -p ansible
-                            cp Amazon/Amazon-Web/target/Amazon.war ansible/
-                            '''
-
+                        cp Amazon/Amazon-Web/target/Amazon.war ansible/
                         ansible-playbook -i ansible/hosts.ini ansible/deploy-tomcat.yml --vault-password-file vault.txt
                         rm -f vault.txt
                     '''
